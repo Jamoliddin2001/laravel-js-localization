@@ -1,7 +1,6 @@
 <?php
 namespace JsLocalization\Utils;
 
-use App;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\File;
 use JsLocalization\Exceptions\FileNotFoundException;

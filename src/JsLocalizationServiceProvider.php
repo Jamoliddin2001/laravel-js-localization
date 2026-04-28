@@ -1,31 +1,18 @@
 <?php
 namespace JsLocalization;
 
-use App;
-use Artisan;
-use Config;
-use View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\File;
+use JsLocalization\Caching\ConfigCachingService;
+use JsLocalization\Caching\MessageCachingService;
 use JsLocalization\Console\ExportCommand;
 use JsLocalization\Console\RefreshCommand;
+use JsLocalization\Utils\Helper;
 
 class JsLocalizationServiceProvider extends ServiceProvider {
 
-	/**
-	 * Indicates if loading of the provider is deferred.
-	 *
-	 * @var bool
-	 */
-	protected $defer = false;
-
-	/**
-	 * Bootstrap the application events.
-	 *
-	 * @return void
-	 */
-	public function boot()
-	{
+    public function boot()
+    {
         $this->publishes([
             __DIR__.'/../config/config.php' => config_path('js-localization.php')
         ]);
@@ -33,62 +20,55 @@ class JsLocalizationServiceProvider extends ServiceProvider {
         $this->publishes([
             __DIR__.'/../public/js/localization.min.js' => public_path('vendor/js-localization/js-localization.min.js'),
         ], 'public');
-        
+
         $this->mergeConfigFrom(
             __DIR__.'/../config/config.php', 'js-localization'
         );
-        
-		$this->loadViewsFrom(__DIR__.'/../resources/views', 'js-localization');
-        
+
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'js-localization');
+
+        $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
+
         $this->registerRefreshCommand();
         $this->registerExportCommand();
-	}
+    }
 
-	/**
-	 * Register the service provider.
-	 *
-	 * @return void
-	 */
-	public function register()
-	{
-		require __DIR__.'/bindings.php';
-		require __DIR__.'/Http/routes.php';
-	}
+    public function register()
+    {
+        $this->app->singleton('JsLocalizationHelper', function () {
+            return new Helper;
+        });
 
-	/**
-	 * Get the services provided by the provider.
-	 *
-	 * @return array
-	 */
-	public function provides()
-	{
-		return ['js-localization'];
-	}
+        $this->app->singleton('JsLocalizationMessageCachingService', function () {
+            return new MessageCachingService;
+        });
 
-	/**
-	 * Register js-localization.refresh
-	 */
-	private function registerRefreshCommand()
-	{
-		$this->app->singleton('js-localization.refresh', function()
-		{
-			return new RefreshCommand;
-		});
+        $this->app->singleton('JsLocalizationConfigCachingService', function () {
+            return new ConfigCachingService;
+        });
+    }
 
-		$this->commands('js-localization.refresh');
-	}
+    public function provides()
+    {
+        return ['js-localization'];
+    }
 
-	/**
-	 * Register js-localization.export
-	 */
-	private function registerExportCommand()
-	{
-		$this->app->singleton('js-localization.export', function()
-		{
-			return new ExportCommand;
-		});
+    private function registerRefreshCommand()
+    {
+        $this->app->singleton('js-localization.refresh', function () {
+            return new RefreshCommand;
+        });
 
-		$this->commands('js-localization.export');
-	}
+        $this->commands('js-localization.refresh');
+    }
+
+    private function registerExportCommand()
+    {
+        $this->app->singleton('js-localization.export', function () {
+            return new ExportCommand;
+        });
+
+        $this->commands('js-localization.export');
+    }
 
 }

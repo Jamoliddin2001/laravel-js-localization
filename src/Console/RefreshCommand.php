@@ -1,8 +1,8 @@
 <?php
 namespace JsLocalization\Console;
 
-use Config;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Config;
 use JsLocalization\Exceptions\ConfigException;
 use JsLocalization\Facades\ConfigCachingService;
 use JsLocalization\Facades\MessageCachingService;
