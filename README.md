@@ -13,6 +13,7 @@ Branches
 
   Laravel  | Branch
 :----------|:-------
+ 12        | laravel-12
  11        | laravel-11
  10        | laravel-10
  9         | laravel-9
